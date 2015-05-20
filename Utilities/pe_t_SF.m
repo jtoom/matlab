@@ -22,6 +22,9 @@ h = waitbar(0,'Please wait...');
 % Initialise output arrays
 PE = zeros(finish_td-start_td+1,1);
 
+% Initialise waitbar counter
+count = 0;
+
 for t = start_td:finish_td
     c = zeros(1,length(permlist));
      for j = 1:ly-t*(m-1)
@@ -40,7 +43,8 @@ for t = start_td:finish_td
     pe = -sum(p_nz .* log(p_nz));     % permutation entropy
     PE(t) = pe/log(factorial(m));     % normalised permutation entropy
 
-    waitbar(t/finish_td-start_td,h,'Calculating...');
+    waitbar(count/(length(start_td:finish_td)),h,'Calculating...');
+    count = count+1;
     
 end
 tau = start_td:finish_td;

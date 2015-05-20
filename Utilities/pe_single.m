@@ -3,8 +3,8 @@ function [pe,pd] = pe_single(TS,m,t)
 %==========================================================================
 % Calcualtes the permutation entropy
 % Input:  TS = time series;
-%         m  = order of permuation entropy (pattern length, typically between 1 and 7)
-%         t  = delay time of permuation entropy
+%         m  = order of permuation entropy (pattern length, typically between 3 and 7)
+%         t  = delay time between pattern points
 % Output: pe = permuation entropy
 %         pd = probability distribution
 %==========================================================================
