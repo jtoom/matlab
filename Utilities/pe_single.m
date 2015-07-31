@@ -22,7 +22,6 @@ c = zeros(1,length(permlist));      % initialise array of permutation counts
  end
 
 pd = c/sum(c);              % probability distribution
- 
 c = c(c~=0);                % remove zeroes for PE calculation
 p = c/sum(c);               % probability dist with zeroes removed
 sp = -sum(p .* log(p));     % Shannon entropy of p
