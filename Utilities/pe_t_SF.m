@@ -41,7 +41,7 @@ for t = start_td:finish_td
     p_nz = c_nz/sum(c_nz);            % probability dist with zeroes removed
   
     pe = -sum(p_nz .* log(p_nz));     % permutation entropy
-    PE(t) = pe/log(factorial(m));     % normalised permutation entropy
+    PE(count+1) = pe/log(factorial(m));     % normalised permutation entropy
 
     waitbar(count/(length(start_td:finish_td)),h,'Calculating...');
     count = count+1;
