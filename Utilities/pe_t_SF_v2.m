@@ -104,8 +104,12 @@ for k = 1:length(tau)
         end
         N(jj) = sum(Match);
     end
-
-    PE(k) = -1*sum(N/sum(N).*log(N/sum(N)));    %If there are any N = 0, then the code probably isn't working as it should;
+    
+    %============================================
+    % JT added: remove zeroes for PE calculation
+    N_nz = N(N~=0);
+    %============================================
+    PE(k) = -1*sum(N_nz/sum(N_nz).*log(N_nz/sum(N_nz)));
     
     if w ~= 0
         waitbar(k/length(tau),h,strcat('Calculating (',num2str(k/length(tau)*100),' %)'));
