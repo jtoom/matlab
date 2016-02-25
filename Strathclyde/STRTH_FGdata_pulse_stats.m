@@ -5,8 +5,9 @@ clear all
 folder = '140709';
 number = '5';
 direction = 'down';
-current = '410.60';
-testSR = 1;         % set to 1 to drop sample rate by half
+current = '413.40';
+testSR = 0;         % set to 1 to drop sample rate by half
+addRAND = 1;
 
 file_loc = ['\\10.48.16.125\Strathclyde\iDrive\data\' folder '\' number '\' direction '\'];    % directory where the files are
 file_list = ls([file_loc 'dpo' current 'mA.dat']);    % you can enter the whole file name here if you just want to look at a single time series
@@ -30,6 +31,16 @@ for a = 1:sz(1)
     % Load time series (ASCII .dat)
     TS = load([file_loc file_list(a,:)]);
     TS = -1*TS;     % invert
+    
+    %=====================================
+    % Add small random variation
+    if addRAND == 1
+        deltaTS = 0.000001;
+        r = -deltaTS + (deltaTS+deltaTS).*rand(length(TS),1);
+        TS = TS + r;
+    end
+    
+    %=====================================
     
     % Test dropping the sampling rate by half (every second point)
     if testSR == 1
@@ -142,7 +153,7 @@ else
     h_period = histogram(diff(loc)/1e-12,'BinWidth',10);
     xlabel('Pulse Period (ps)')
     ylabel('Counts')
-%     set(gca,'Xlim',[280 400])
+    set(gca,'Xlim',[100 350])
     LX = get(gca,'XLim');
     LY = get(gca,'YLim');
     text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanT/1e-12,'%.1f') ' ps'])
@@ -152,7 +163,7 @@ else
     h_width = histogram(w/1e-12);
     xlabel('Pulse Width (ps)')
     ylabel('Counts')
-%     set(gca,'Xlim',[0 170])
+%     set(gca,'Xlim',[70 160])
     LX = get(gca,'XLim');
     LY = get(gca,'YLim');
     text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanW/1e-12,'%.1f') ' ps'])
@@ -173,7 +184,11 @@ else
     xlabel('Delay (pts)')
     ylabel('ACF')
     
-%     print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA.png'])
+    if addRAND == 1
+        print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA_with_random_pert.png'])
+    else
+        print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA.png'])
+    end
     
 %     figure(2)
 %     plot(f./1e9,dBmx,f(ind_max)/1e9,fft_max,'ro')
