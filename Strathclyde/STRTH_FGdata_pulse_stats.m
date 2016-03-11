@@ -1,13 +1,13 @@
-clear all
+clearvars
 
 %==========================================================================
 % Settings
 folder = '140709';
 number = '5';
 direction = 'down';
-current = '413.40';
+current = '413.70';
 testSR = 0;         % set to 1 to drop sample rate by half
-addRAND = 1;
+addRAND = 0;
 
 file_loc = ['\\10.48.16.125\Strathclyde\iDrive\data\' folder '\' number '\' direction '\'];    % directory where the files are
 file_list = ls([file_loc 'dpo' current 'mA.dat']);    % you can enter the whole file name here if you just want to look at a single time series
@@ -17,6 +17,7 @@ analysis_loc = ['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder 
 sz = size(file_list);
 
 % Get injection range
+inj = zeros(1,sz(1));
 for z = 1:sz(1)
     inj(z) = str2double(file_list(z,4:9));
 end
@@ -86,25 +87,38 @@ for a = 1:sz(1)
     [pks,loc,w,~] = findpeaks(TS,1/ts,'MinPeakHeight',min(TS)+0.5*p2pTS,'MinPeakDistance',mpd);
 
     % Statistics on peaks
-    d = diff(loc);
-    meanT = mean(d);    % Average period between pulses
-    meanT_1stpair = mean(d(1:2:end));
-    meanT_2ndpair = mean(d(2:2:end));
-    stdT_1stpair = std(d(1:2:end));
-    stdT_2ndpair = std(d(2:2:end));
-    meanT_ODDpulse = mean(diff(loc(1:2:end)));    % Average period between every second pulse
-    meanT_EVENpulse = mean(diff(loc(2:2:end)));    % Average period between every second pulse
+    meanT = mean(diff(loc));            % Average period between pulses
+    n_all = length(diff(loc));          % Number of pulse periods
+    stdT_all = std(diff(loc));              % standard deviation of period between pulses
+    kurt_all = kurtosis(diff(loc));         % kurtosis of distribution of pulse periods
+    unc_all = (stdT_all*n_all^(-1/4))*(kurt_all - ((n_all-3)/(n_all-1)))^(1/4);
+    
+    meanT_ODDpulse = mean(diff(loc(1:2:end)));      % Average period between every second pulse
+    n_odd = length(diff(loc(1:2:end)));             % Number of odd periods
+    stdT_ODDpulse = std(diff(loc(1:2:end)));        % standard deviation of period between every 2nd pulse
+    kurt_ODDpulse = kurtosis(diff(loc(1:2:end)));   % kurtosis of distribution of odd pulse periods
+    unc_ODD = (stdT_ODDpulse*n_odd^(-1/4))*(kurt_ODDpulse - ((n_odd-3)/(n_odd-1)))^(1/4);
+    
+    meanT_EVENpulse = mean(diff(loc(2:2:end)));     % Average period between every second pulse
+    n_even = length(diff(loc(2:2:end)));            % Number of even periods
+    stdT_EVENpulse = std(diff(loc(2:2:end)));       % standard deviation of period between every 2nd pulse
+    kurt_EVENpulse = kurtosis(diff(loc(2:2:end)));  % kurtosis of distribution of even pulse periods
+    unc_EVEN = (stdT_EVENpulse*n_even^(-1/4))*(kurt_EVENpulse - ((n_even-3)/(n_even-1)))^(1/4);
+    
+    meanT_1stpair = mean(diff(loc(1:2:end)));
+    meanT_2ndpair = mean(diff(loc(2:2:end)));
+    stdT_1stpair = std(diff(loc(1:2:end)));
+    stdT_2ndpair = std(diff(loc(2:2:end)));
+    
     meanT_THIRDpulse = mean(diff(loc(1:3:end)));
     meanT_FOURTHpulse = mean(diff(loc(1:4:end)));
-    stdT = std(diff(loc));      % standard deviation of period between pulses
-    stdT_ODDpulse = std(diff(loc(1:2:end)));      % standard deviation of period between every 2nd pulse
-    stdT_EVENpulse = std(diff(loc(2:2:end)));      % standard deviation of period between every 2nd pulse
     stdT_THIRDpulse = std(diff(loc(1:3:end)));
     stdT_FOURTHpulse = std(diff(loc(1:4:end)));
-    meanW = mean(w);            % Average pulse width at half prominence
+    
+    meanW = mean(w);                        % Average pulse width at half prominence
     meanW_ODDpulse = mean(w(1:2:end));
     meanW_EVENpulse = mean(w(2:2:end));
-    stdW = std(w);              % Standard deviation of pulse width
+    stdW = std(w);                          % Standard deviation of pulse width
     stdW_ODDpulse = std(w(1:2:end));
     stdW_EVENpulse = std(w(2:2:end));
     
@@ -113,7 +127,7 @@ for a = 1:sz(1)
     
     % Load ACF
     I = h5read([analysis_loc 'ACF.h5'],'/current');
-    ind = find(I == inj);
+    ind = find(I == inj(a));
     ACFun = h5read([analysis_loc 'ACF.h5'],'/ACF',[ind 1],[1 20000]);
     delay = h5read([analysis_loc 'ACF.h5'],'/delay');
 end
@@ -157,7 +171,7 @@ else
     LX = get(gca,'XLim');
     LY = get(gca,'YLim');
     text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanT/1e-12,'%.1f') ' ps'])
-    text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),['StDev = ' num2str(stdT/1e-12,'%.1f') ' ps'])
+    text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),['StDev = ' num2str(stdT_all/1e-12,'%.1f') ' ps'])
     
     subplot(3,3,6)
     h_width = histogram(w/1e-12);
@@ -184,11 +198,11 @@ else
     xlabel('Delay (pts)')
     ylabel('ACF')
     
-    if addRAND == 1
-        print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA_with_random_pert.png'])
-    else
-        print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA.png'])
-    end
+%     if addRAND == 1
+%         print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA_with_random_pert.png'])
+%     else
+%         print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA.png'])
+%     end
     
 %     figure(2)
 %     plot(f./1e9,dBmx,f(ind_max)/1e9,fft_max,'ro')
