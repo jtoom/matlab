@@ -2,10 +2,10 @@ clearvars
 
 %==========================================================================
 % Settings
-folder = '140709';
-number = '5';
+folder = '140708';
+number = '4';
 direction = 'down';
-current = '413.70';
+current = '418.50';
 testSR = 0;         % set to 1 to drop sample rate by half
 addRAND = 0;
 
@@ -87,7 +87,7 @@ for a = 1:sz(1)
     [pks,loc,w,~] = findpeaks(TS,1/ts,'MinPeakHeight',min(TS)+0.5*p2pTS,'MinPeakDistance',mpd);
 
     % Statistics on peaks
-    meanT = mean(diff(loc));            % Average period between pulses
+    meanT_all = mean(diff(loc));            % Average period between pulses
     n_all = length(diff(loc));          % Number of pulse periods
     stdT_all = std(diff(loc));              % standard deviation of period between pulses
     kurt_all = kurtosis(diff(loc));         % kurtosis of distribution of pulse periods
@@ -170,7 +170,7 @@ else
     set(gca,'Xlim',[100 350])
     LX = get(gca,'XLim');
     LY = get(gca,'YLim');
-    text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanT/1e-12,'%.1f') ' ps'])
+    text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanT_all/1e-12,'%.1f') ' ps'])
     text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),['StDev = ' num2str(stdT_all/1e-12,'%.1f') ' ps'])
     
     subplot(3,3,6)
@@ -197,6 +197,53 @@ else
     plot(delay(1:20000),ACFun(1:20000))
     xlabel('Delay (pts)')
     ylabel('ACF')
+    
+    % Timing Jitter Distributions
+    jitter_ALL = diff(loc) - meanT_all;
+    jitter_ODD = diff(loc(1:2:end)) - meanT_ODDpulse;
+    jitter_EVEN = diff(loc(2:2:end)) - meanT_EVENpulse;
+    
+    fig88 = figure(88);
+    set(fig88,'Position',[50 50 600 800],'PaperPositionMode','auto')
+    fsp = subplot(3,1,1);
+    histogram(jitter_ALL/1e-12,'BinWidth',10);
+%     xlabel('Difference from Mean Period (ps)')
+    set(get(gca,'child'),'FaceColor','b');
+    ylabel('Counts')
+    set(gca,'Xlim',[-80 80])
+    legend('All pulses')
+    LX = get(gca,'XLim');
+    LY = get(gca,'YLim');
+    str_ALL = ['StDev = ' num2str(std(jitter_ALL)/1e-12,'%.1f') '$$ \pm $$' num2str(unc_all/1e-12,'%.1f') 'ps'];
+    text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),str_ALL, 'Interpreter','latex')
+    
+    subplot(3,1,2)
+    histogram(jitter_EVEN/1e-12,'BinWidth',10);
+%     xlabel('Difference from Mean Period - Even Pulses (ps)')
+    set(get(gca,'child'),'FaceColor','g');
+    ylabel('Counts')
+    set(gca,'Xlim',[-80 80])
+    legend('Even pulses')
+    LX = get(gca,'XLim');
+    LY = get(gca,'YLim');
+    str_EVEN = ['StDev = ' num2str(std(jitter_EVEN)/1e-12,'%.1f') '$$ \pm $$' num2str(unc_EVEN/1e-12,'%.1f') 'ps'];
+    text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),str_EVEN, 'Interpreter','latex')
+    
+    subplot(3,1,3)
+    histogram(jitter_ODD/1e-12,'BinWidth',10);
+    set(get(gca,'child'),'FaceColor','r');
+    xlabel('Difference from Mean Period (ps)')
+    ylabel('Counts')
+    set(gca,'Xlim',[-80 80])
+    legend('Odd pulses')
+    LX = get(gca,'XLim');
+    LY = get(gca,'YLim');
+    str_ODD = ['StDev = ' num2str(std(jitter_ODD)/1e-12,'%.1f') '$$ \pm $$' num2str(unc_ODD/1e-12,'%.1f') 'ps'];
+    text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),str_ODD, 'Interpreter','latex')
+    title(fsp, {'Pulse Jitter',[folder ' - ' number ' - ' direction ' - ' current ' mA']})
+    
+%     print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Jitter Plots ' current 'mA.png'])
+    
     
 %     if addRAND == 1
 %         print('-dpng','-r300',['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\Pulse Stats ' current 'mA_with_random_pert.png'])
