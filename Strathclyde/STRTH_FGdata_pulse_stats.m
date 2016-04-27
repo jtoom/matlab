@@ -2,10 +2,10 @@ clearvars
 
 %==========================================================================
 % Settings
-folder = '140708';
-number = '4';
+folder = '140709';
+number = '5';
 direction = 'down';
-current = '418.50';
+current = '414.20';
 testSR = 0;         % set to 1 to drop sample rate by half
 addRAND = 0;
 
