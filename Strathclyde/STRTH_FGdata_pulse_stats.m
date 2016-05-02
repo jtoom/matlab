@@ -121,15 +121,17 @@ for a = 1:sz(1)
     stdW = std(w);                          % Standard deviation of pulse width
     stdW_ODDpulse = std(w(1:2:end));
     stdW_EVENpulse = std(w(2:2:end));
-    
-    % Permutation Entropy (needs to be calculated prior to this)
-    PE = load([analysis_loc 'PE_m3_dpo' current 'mA.csv']); 
-    
+        
     % Load ACF
     I = h5read([analysis_loc 'ACF.h5'],'/current');
     ind = find(I == inj(a));
     ACFun = h5read([analysis_loc 'ACF.h5'],'/ACF',[ind 1],[1 20000]);
     delay = h5read([analysis_loc 'ACF.h5'],'/delay');
+    
+    % Permutation Entropy (needs to be calculated prior to this)
+%     PE = load([analysis_loc 'PE_m3_dpo' current 'mA.csv']); 
+    PE = load([analysis_loc 'PE_m5_d_200.csv']);
+    PE = PE(ind,:);
 end
 
 if sz(1) > 1
