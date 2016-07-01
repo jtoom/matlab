@@ -5,7 +5,7 @@ clearvars
 folder = '140709';
 number = '5';
 direction = 'down';
-current = '414.20';
+current = '413.70';
 testSR = 0;         % set to 1 to drop sample rate by half
 addRAND = 0;
 

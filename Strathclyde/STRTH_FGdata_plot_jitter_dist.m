@@ -1,5 +1,6 @@
 % Plot jitter distributions for Strathclyde paper
 % Generate publication quality file
+% **** Run STRTH_FGdata_pulse_stats.m first ****
 
 fig88 = figure(88);
 set(fig88,'Position',[50 50 600 800],'PaperPositionMode','auto')

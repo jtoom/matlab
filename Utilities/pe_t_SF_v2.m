@@ -1,4 +1,4 @@
-function [PE_norm, PE, tau, N] = pe_t_SF_v2(y,m,start_td,finish_td,int_td,w)
+function [PE_norm, PE, tau, N] = pe_t_SF_v2(y,m,start_td,finish_td,int_td,r,w)
 
 %==========================================================================
 % DESCRIPTION
@@ -11,22 +11,24 @@ function [PE_norm, PE, tau, N] = pe_t_SF_v2(y,m,start_td,finish_td,int_td,w)
 % m = length of ordinal pattern to use
 % start_td = initial time delay between points used in ordinal pattern
 % finish_td = maximum time delay between points used in ordinal pattern
-% int_td = Interval between time delays.
+% int_td = Interval between time delays
+% r = Enter 1 to add a random value to remove equalities
 % w = Enter 0 to turn the waitbar off. Useful when running this code
-% within scripts.
+% within scripts
+
 
 % OUTPUTS
 % PE_norm = Normalised permutation entropy
 % PE = Permutation entropy 
-% tau = list of tau values.
-% N = Counts for each ordinal pattern.
+% tau = list of tau values
+% N = Counts for each ordinal pattern
 %==========================================================================
 
 %Preallocate matrices;
 
 M = factorial(m);
-N = zeros(M,1);
 tau = start_td:int_td:finish_td;
+N = zeros(M,length(tau));
 PE = zeros(1,length(tau));
 PERM = perms(1:m);
 Pairs = zeros(M*(m-1),2);
@@ -35,7 +37,7 @@ B = zeros(1,sum(1:m-1));
 Ineq = zeros(M*(m-1),1);
 
 if w ~= 0
-    h = waitbar(0,'Tigers dont play footy real good');
+    h = waitbar(0,'Initialising');
 end
 
 %Encode ordinal patterns into sets of inequalities;
@@ -79,8 +81,18 @@ for k = 1:length(tau)
     for i = 1:m
         Y(i,:) = y((1+(i-1)*tau(k)):end-(m-i)*tau(k))';
     end
-    
-%     Y = Y + 0.1*randn(size(Y));                 %Add random perturbations.
+    %======================================================================
+    % JT added: Make sure random pert is smaller than smallest y interval
+    if r == 1
+        Ydiff = diff(Y,1,2);
+        Ydiff(Ydiff==0) = nan;
+        smallest_int = min(min(abs(Ydiff)));
+        rL = -0.01*smallest_int;
+        rU = 0.01*smallest_int;
+        rY = (rU-rL).*rand(size(Y)) + rL;
+        Y = Y + rY;                 %Add random perturbations.
+    end
+    %======================================================================
     
     %Take all sum(1:m-1) logical operations;
     
@@ -102,12 +114,13 @@ for k = 1:length(tau)
                 Match = and(Match,Logic_Ynot(abs(RIneq(jj,kk)),:));
             end
         end
-        N(jj) = sum(Match);
+        N(jj,k) = sum(Match);
     end
     
     %============================================
     % JT added: remove zeroes for PE calculation
-    N_nz = N(N~=0);
+    N_nz = N(:,k);
+    N_nz = N_nz(N_nz~=0);
     %============================================
     PE(k) = -1*sum(N_nz/sum(N_nz).*log(N_nz/sum(N_nz)));
     
