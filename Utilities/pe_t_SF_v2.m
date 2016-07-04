@@ -77,6 +77,7 @@ for k = 1:length(tau)
     
     Y = zeros(m,length(y)+(1-m)*tau(k));
     Logic_Y = false(sum(1:m-1),size(Y,2));      %Use logical data type for faster speeds.
+    Logic_Ynot = false(sum(1:m-1),size(Y,2));
     
     for i = 1:m
         Y(i,:) = y((1+(i-1)*tau(k)):end-(m-i)*tau(k))';
@@ -98,9 +99,10 @@ for k = 1:length(tau)
     
     for ii = 1:sum(1:m-1)
         Logic_Y(ii,:) = Y(A(ii),:) > Y(B(ii),:);
+        Logic_Ynot(ii,:) = Y(A(ii),:) < Y(B(ii),:);
     end
-    
-    Logic_Ynot = not(Logic_Y);
+
+%     Logic_Ynot = not(Logic_Y);
     
     %Evaluate population of each ordinal pattern using the required logical
     %operations;
