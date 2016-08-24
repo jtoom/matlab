@@ -2,14 +2,14 @@ clearvars
 
 %==========================================================================
 % Settings
-folder = '140709';
-number = '5';
+folder = '140708';
+number = '4';
 direction = 'down';
-current = '413.70';
+current = '422.30';
 testSR = 0;         % set to 1 to drop sample rate by half
 addRAND = 0;
 
-file_loc = ['\\10.48.16.125\Strathclyde\iDrive\data\' folder '\' number '\' direction '\'];    % directory where the files are
+file_loc = ['\\10.48.24.77\Strathclyde\iDrive\data\' folder '\' number '\' direction '\'];    % directory where the files are
 file_list = ls([file_loc 'dpo' current 'mA.dat']);    % you can enter the whole file name here if you just want to look at a single time series
 analysis_loc = ['E:\Uni\Post Doc\Strathclyde\iDrive\data\Josh Analysis\' folder '\' number '\' direction '\'];
 %==========================================================================
@@ -130,7 +130,7 @@ for a = 1:sz(1)
     
     % Permutation Entropy (needs to be calculated prior to this)
 %     PE = load([analysis_loc 'PE_m3_dpo' current 'mA.csv']); 
-    PE = load([analysis_loc 'PE_m5_d_200.csv']);
+    PE = load([analysis_loc 'PE_m3_d_200.csv']);
     PE = PE(ind,:);
 end
 
@@ -169,7 +169,7 @@ else
     h_period = histogram(diff(loc)/1e-12,'BinWidth',10);
     xlabel('Pulse Period (ps)')
     ylabel('Counts')
-    set(gca,'Xlim',[100 350])
+%     set(gca,'Xlim',[100 350])
     LX = get(gca,'XLim');
     LY = get(gca,'YLim');
     text(LX(1)+0.03*diff(LX),LY(1)+0.92*diff(LY),['Mean = ' num2str(meanT_all/1e-12,'%.1f') ' ps'])

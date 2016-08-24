@@ -40,5 +40,5 @@ LY = get(gca,'YLim');
 str_ODD = ['StDev = ' num2str(std(jitter_ODD)/1e-12,'%.1f') '$$ \pm $$' num2str(unc_ODD/1e-12,'%.1f') 'ps'];
 text(LX(1)+0.03*diff(LX),LY(1)+0.85*diff(LY),str_ODD, 'Interpreter','latex','FontSize',13)
 
-% print('-dpng','-r300',[analysis_loc 'Pulse Jitter_' folder ' - ' number ' - ' direction ' - ' current ' mA.png'])
+print('-dpng','-r300',[analysis_loc 'Pulse Jitter_' folder ' - ' number ' - ' direction ' - ' current ' mA.png'])
 % print('-depsc','-r300',[analysis_loc 'Pulse Jitter_' folder ' - ' number ' - ' direction ' - ' current ' mA.eps'])
