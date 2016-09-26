@@ -88,39 +88,29 @@ for a = 1:sz(1)
 
     % Statistics on peaks
     meanT_all = mean(diff(loc));            % Average period between pulses
-    n_all = length(diff(loc));          % Number of pulse periods
+    n_all = length(diff(loc));              % Number of pulse periods
     stdT_all = std(diff(loc));              % standard deviation of period between pulses
     kurt_all = kurtosis(diff(loc));         % kurtosis of distribution of pulse periods
-    unc_all = (stdT_all*n_all^(-1/4))*(kurt_all - ((n_all-3)/(n_all-1)))^(1/4);
+    unc_all = (stdT_all*n_all^(-1/4))*(kurt_all - ((n_all-3)/(n_all-1)))^(1/4); % uncertainty in standard deviation
     
     meanT_ODDpulse = mean(diff(loc(1:2:end)));      % Average period between every second pulse
     n_odd = length(diff(loc(1:2:end)));             % Number of odd periods
     stdT_ODDpulse = std(diff(loc(1:2:end)));        % standard deviation of period between every 2nd pulse
     kurt_ODDpulse = kurtosis(diff(loc(1:2:end)));   % kurtosis of distribution of odd pulse periods
-    unc_ODD = (stdT_ODDpulse*n_odd^(-1/4))*(kurt_ODDpulse - ((n_odd-3)/(n_odd-1)))^(1/4);
+    unc_ODD = (stdT_ODDpulse*n_odd^(-1/4))*(kurt_ODDpulse - ((n_odd-3)/(n_odd-1)))^(1/4);   % uncertainty in standard deviation
     
     meanT_EVENpulse = mean(diff(loc(2:2:end)));     % Average period between every second pulse
     n_even = length(diff(loc(2:2:end)));            % Number of even periods
     stdT_EVENpulse = std(diff(loc(2:2:end)));       % standard deviation of period between every 2nd pulse
     kurt_EVENpulse = kurtosis(diff(loc(2:2:end)));  % kurtosis of distribution of even pulse periods
-    unc_EVEN = (stdT_EVENpulse*n_even^(-1/4))*(kurt_EVENpulse - ((n_even-3)/(n_even-1)))^(1/4);
-    
-    meanT_1stpair = mean(diff(loc(1:2:end)));
-    meanT_2ndpair = mean(diff(loc(2:2:end)));
-    stdT_1stpair = std(diff(loc(1:2:end)));
-    stdT_2ndpair = std(diff(loc(2:2:end)));
-    
-    meanT_THIRDpulse = mean(diff(loc(1:3:end)));
-    meanT_FOURTHpulse = mean(diff(loc(1:4:end)));
-    stdT_THIRDpulse = std(diff(loc(1:3:end)));
-    stdT_FOURTHpulse = std(diff(loc(1:4:end)));
-    
+    unc_EVEN = (stdT_EVENpulse*n_even^(-1/4))*(kurt_EVENpulse - ((n_even-3)/(n_even-1)))^(1/4); % uncertainty in standard deviation
+        
     meanW = mean(w);                        % Average pulse width at half prominence
-    meanW_ODDpulse = mean(w(1:2:end));
-    meanW_EVENpulse = mean(w(2:2:end));
+    meanW_ODDpulse = mean(w(1:2:end));      % Average pulse width (odd pulses) at half prominence
+    meanW_EVENpulse = mean(w(2:2:end));     % Average pulse width (even pulses) at half prominence
     stdW = std(w);                          % Standard deviation of pulse width
-    stdW_ODDpulse = std(w(1:2:end));
-    stdW_EVENpulse = std(w(2:2:end));
+    stdW_ODDpulse = std(w(1:2:end));        % Standard deviation of odd pulse widths
+    stdW_EVENpulse = std(w(2:2:end));       % Standard deviation of even pulse widths
         
     % Load ACF
     I = h5read([analysis_loc 'ACF.h5'],'/current');
@@ -129,8 +119,8 @@ for a = 1:sz(1)
     delay = h5read([analysis_loc 'ACF.h5'],'/delay');
     
     % Permutation Entropy (needs to be calculated prior to this)
-%     PE = load([analysis_loc 'PE_m3_dpo' current 'mA.csv']); 
-    PE = load([analysis_loc 'PE_m3_d_200.csv']);
+    PE = load([analysis_loc 'PE_m3_dpo' current 'mA.csv']); 
+%     PE = load([analysis_loc 'PE_m3_d_200.csv']);
     PE = PE(ind,:);
 end
 
